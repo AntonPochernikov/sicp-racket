@@ -18,5 +18,3 @@
 (check-equal? (round (fib 3)) 2.0)
 (check-equal? (round (fib 5)) 5.0)
 (check-equal? (round (fib 7)) 13.0)
-
-(display "all suits passed!")

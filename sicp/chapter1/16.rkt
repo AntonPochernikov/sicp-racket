@@ -16,5 +16,3 @@
 (check-equal? (fast-sqrt 5 1) 5)
 (check-equal? (fast-sqrt -3 3) -27)
 (check-equal? (fast-sqrt 2 6) 64)
-
-(display "all suits passed!")
