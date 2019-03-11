@@ -14,17 +14,17 @@
 
 
 (display "phi ** 2 = phi + 1")
-(display "\n")
+(newline)
 (display "phi ** 2 - phi = 1")
-(display "\n")
+(newline)
 (display "phi * (phi - 1) = 1")
-(display "\n")
+(newline)
 (display "phi - 1 = 1 / phi")
-(display "\n")
+(newline)
 (display "phi = 1 + 1 / phi")
-(display "\n")
+(newline)
 
 (define phi (fixed-point (lambda (x) (+ 1 (/ 1 x))) 1.0))
-(display "\n")
+(newline)
 (display "phi = ")
 (display phi)
