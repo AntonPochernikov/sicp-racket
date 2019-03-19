@@ -22,9 +22,10 @@
 (define (width i)
   (/ (- (upper-bound i) (lower-bound i)) 2))
 
-(define (make-center-percent c wp) (make-center-width c (/ wp 100)))
+(define (make-center-percent c p)
+   (make-center-width c (* c (/ p 100.0))))
 
-(define (percent i) (* (width i) 100))
+(define (percent i) (* (/ (width i) (center i)) 100.0))
 
 (define interval-1 (make-center-percent 3.5 15))
 (print-interval interval-1)
@@ -33,3 +34,4 @@
 (display (width interval-1))
 (newline)
 (display (percent interval-1))
+
