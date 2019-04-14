@@ -5,13 +5,13 @@
         ((not (eq? (car tags) (cadr tags))) false)
         (else (same-type (cdr tags)))))
 
-(define (find-coercion tags)
+(define (find-coercion args)
   (define (iter acc rest)
     (if (< (length rest) 2)
         false
         (let ((prev (car rest))
               (next (cadr rest)))
-          (if (or (get-coercion prev next)
+          (if (or (get-coercion (type-tag prev) (type-tag next))
                   (get-coercion next prev))
               '(acc '(prev next) rest)
               (iter (append acc prev) (cdr rest))))))
@@ -24,7 +24,7 @@
           (apply proc (map contents args))
           (if (same-type tags)
               (error "method not found" (list op type-tags))
-              (let ((coersible (find-coercion tags)))
+              (let ((coersible (find-coercion args)))
                 (if coersible
                     (let ((static (car coersible))
                           (to-process (cadr coersible))
