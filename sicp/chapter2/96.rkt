@@ -23,11 +23,11 @@
   (get-helper (list op type) global-array))
 
 (define (attach-tag tag contents)
-  (cons tag contents))
+  (list tag contents))
 (define (type-tag arg)
   (car arg))
 (define (contents arg)
-  (cdr arg))
+  (cadr arg))
 
 (define (apply-generic op . args)
   (let ((type-tags (map type-tag args)))
@@ -39,7 +39,7 @@
            (list op type-tags))))))
 
 (define (install-polynomial-package)
-  (define (tag p) (cons 'polynomial p))
+  (define (tag p) (attach-tag 'polynomial p))
   (define (make-poly variable term-list)
     (list variable term-list))
   (define (variable p) (car p))
@@ -114,6 +114,17 @@
                       (mul (coeff t1) (coeff t2)))
            (mul-term-by-all-terms t1 (rest-terms L))))))
 
+  (define (mul-poly p1 p2)
+    (if (same-variable? (variable p1) (variable p2))
+        (make-poly (variable p1)
+                   (mul-terms (term-list p1)
+                              (term-list p2)))
+        (error "Polynomials with different variables"
+               (list p1 p2))))
+
+  (put 'mul '(polynomial polynomial)
+       (lambda (p1 p2) (tag (mul-poly p1 p2))))
+
   (define (div-terms L1 L2)
     (if (empty-termlist? L1)
         (list (the-empty-termlist) (the-empty-termlist))
@@ -136,13 +147,32 @@
   ; ...
 
   ; solution
-  (define (remainder-terms t1 t2)
-    (cadr (div-terms t1 t2)))
+  (define (pseudo-remainder-terms L1 L2) 
+    (let ((o1 (order (first-term L1)))
+          (o2 (order (first-term L2)))
+          (c (coeff (first-term L2))))
+      (let ((multiplier (expt c (+ 1 (- o1 o2)))))
+        (let ((multiplied-terms (adjoin-term
+                        (make-term 0 multiplier)
+                        (the-empty-termlist))))
+          (cadr (div-terms (mul-terms multiplied-terms L1) L2))))))
 
-  (define (gcd-terms a b)
-    (if (empty-termlist? b)
-        a
-        (gcd-terms b (remainder-terms a b))))
+  (define (gcd-coeff terms)
+    (define (coeff-list terms)
+      (if (empty-termlist? terms)
+          '()
+          (cons (coeff (first-term terms))
+                (coeff-list (rest-terms terms)))))
+    (apply gcd (coeff-list terms)))
+  
+  
+  (define (gcd-terms L1 L2)
+    (if (empty-termlist? L2)
+        (let ((coeff-terms
+               (adjoin-term (make-term 0 (gcd-coeff L1))
+                            (the-empty-termlist))))
+          (car (div-terms L1 coeff-terms)))
+        (gcd-terms L2 (pseudo-remainder-terms L1 L2))))
 
   (define (gcd-polys p1 p2)
     (if (same-variable? (variable p1) (variable p2))
@@ -161,13 +191,13 @@
   ((get 'make 'polynomial) var terms))
 (define (greatest-common-divisor p1 p2)
   (apply-generic 'greatest-common-divisor p1 p2))
+(define (mul v1 v2)
+  (apply-generic 'mul v1 v2))
 
-(define p1 (make-poly 'x '((5 1) (0 -1))))
-(define p2 (make-poly 'x '((2 1) (0 -1))))
-(define result (make-poly 'x '((1 1) (0 -1))))
-(check-equal? (greatest-common-divisor p1 p2) result)
+(define p1 (make-poly 'x '((2 1) (1 -2) (0 1))))
+(define p2 (make-poly 'x '((2 11) (0 1))))
+(define p3 (make-poly 'x '((1 13) (0 5))))
 
-(define p3 (make-poly 'x '((4 1) (3 -1) (2 -2) (1 2))))
-(define p4 (make-poly 'x '((3 1) (1 -1))))
-(define result2 (make-poly 'x '((2 -1) (1 1))))
-(check-equal? (greatest-common-divisor p3 p4) result2)
+(define q1 (mul p1 p2))
+(define q2 (mul p1 p3))
+(display (greatest-common-divisor q1 q2))
