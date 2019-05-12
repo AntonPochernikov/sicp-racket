@@ -1,0 +1,38 @@
+#lang sicp
+
+(#%require rackunit)
+
+(define (make-account balance pass)
+  (let ((attempts 1))
+    (define (withdraw amount)
+      (if (>= balance amount)
+          (begin (set! balance (- balance amount))
+                 balance)
+          "Not enough funds"))
+    (define (deposit amount)
+      (set! balance (+ balance amount))
+      balance)
+    (define (call-the-cops) "(sirens sound) You`re under arest!")
+    (define (dispatch p m)
+      (cond ((not (eq? p pass))
+             (if (= attempts 7)
+                 (lambda (a) (call-the-cops))
+                 (lambda (a)
+                   (set! attempts (inc attempts))
+                   "Incorrect password")))
+            ((eq? m 'withdraw) withdraw)
+            ((eq? m 'deposit) deposit)
+            (else (error "Unknown request -- MAKE-ACCOUNT"
+                         m))))
+    dispatch))
+
+(define acc (make-account 100 'secret-password))
+(define (fraud amount) ((acc 'wrong-password 'withdraw) amount))
+(fraud 100)
+(fraud 100)
+(fraud 100)
+(fraud 100)
+(fraud 100)
+(fraud 100)
+(fraud 100)
+
