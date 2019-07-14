@@ -1,4 +1,6 @@
-#lang sicp
+#lang racket
+
+(require sicp)
 
 (define (make-queue)
   (let ((front-ptr '())
