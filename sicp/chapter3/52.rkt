@@ -40,8 +40,13 @@
         [else (stream-filter pred
                              (stream-cdr s))]))
 
+(define (some pred L)
+  (cond [(null? L) false]
+        [(pred (car L)) true]
+        [else (some pred (cdr L))]))
+
 (define (stream-map proc . argstreams)
-  (if (stream-null? (car argstreams))
+  (if (some stream-null? argstreams)
       the-empty-stream
       (cons-stream
        (apply proc (map stream-car argstreams))
