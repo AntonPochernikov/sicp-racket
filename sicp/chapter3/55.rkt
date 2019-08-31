@@ -35,14 +35,17 @@
                (add-streams integers ones)))
 
 ; SOLUTION
-(define partial-sums
-  (cons-stream 0 (add-streams integers partial-sums)))
+(define (partial-sums s)
+  (cons-stream
+   (stream-car s)
+   (stream-map (lambda (x) (+ x (stream-car s)))
+               (partial-sums (stream-cdr s)))))
 
-(check-equal? (stream-ref partial-sums 1) 1)
-(check-equal? (stream-ref partial-sums 2) 3)
-(check-equal? (stream-ref partial-sums 3) 6)
-(check-equal? (stream-ref partial-sums 4) 10)
-(check-equal? (stream-ref partial-sums 5) 15)
+(check-equal? (stream-ref (partial-sums integers) 0) 1)
+(check-equal? (stream-ref (partial-sums integers) 1) 3)
+(check-equal? (stream-ref (partial-sums integers) 2) 6)
+(check-equal? (stream-ref (partial-sums integers) 3) 10)
+(check-equal? (stream-ref (partial-sums integers) 4) 15)
 
 
 
