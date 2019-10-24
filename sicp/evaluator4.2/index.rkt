@@ -111,7 +111,7 @@
   (cond [(last-exp? exps)
          (eval (first-exp exps) env)]
         [else
-         (eval (first-exp exps) env)
+         (actual-value (first-exp exps) env)
          (eval-sequence (rest-exps exps) env)]))
 
 ; ASSIGNMENT
@@ -185,6 +185,12 @@
 (define (thunk-value evaluated-thunk)
   (cadr evaluated-thunk))
 
+;(define (force-it obj)
+;  (if (thunk? obj)
+;      (actual-value (thunk-exp obj)
+;                    (thunk-env obj))
+;      obj))
+
 (define (force-it obj)
   (cond [(thunk? obj)
          (let ([result
@@ -231,7 +237,9 @@
         (list '/ /)
         (list '= =)
         (list '< <)
-        (list 'set! set)))
+        (list 'set! set)
+        (list 'display display)
+        (list 'newline newline)))
 
 (define (primitive-procedure-names)
   (map car primitive-procedures))
@@ -283,7 +291,7 @@
     (let ([start-time (current-inexact-milliseconds)]
           [output (actual-value input the-global-environment)]
           [end-time (current-inexact-milliseconds)])
-      (display "Execution time:")
+      (display "Execution time: ")
       (display (- end-time start-time))
       (display "ms")
       (announce-output output-prompt)
