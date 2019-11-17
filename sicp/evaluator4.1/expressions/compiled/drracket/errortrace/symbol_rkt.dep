@@ -1,1 +1,0 @@
-("7.3" racket ("83601492ef17fb7fd8b56a4e2fda0be0a783bf79" . "04b5fc3aba1e48e08bd313fa9498551a97ecbe7f") #"C:\\Users\\Anton_Pochernikov\\Desktop\\sicp-racket\\sicp\\evaluator\\expressions\\..\\utils\\tagged-list.rkt" (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt"))

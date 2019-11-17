@@ -11,13 +11,6 @@
 (check-equal? (lambda-parameters test) '(x))
 (check-equal? (lambda-body test) '((* x x)))
 
-(define test2 '(lambda (a (b lazy) c (d lazy-memo)) 5))
-
-(check-equal? (lambda-parameters test2) '(a (b lazy) c (d lazy-memo)))
-(check-equal? (lambda-body test2) '(5))
-
-
-
 
 
 

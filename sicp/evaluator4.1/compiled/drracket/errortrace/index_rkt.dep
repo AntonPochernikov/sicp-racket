@@ -1,1 +1,0 @@
-("7.3" racket ("1665f05f069af41b0f63cf442b449b068d0e89f1" . "1f3532f03687cfb081d3c1194565cca676ce21d9") #"C:\\Users\\Anton_Pochernikov\\Desktop\\sicp-racket\\sicp\\evaluator\\eval-apply.rkt" (collects #"errortrace" #"errortrace-key.rkt") (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt") (collects #"sicp" #"main.rkt"))
