@@ -1,0 +1,1 @@
+("7.1" ("b810c4a6b3f35eb2bcb31bfc2d77baec3f86b55a" . "e0f3faa753848dc17e8a84a13665a1568f8b645e") #"C:\\Users\\Admin\\Desktop\\sicp-racket\\sicp\\chapter4\\33\\expressions\\..\\utils\\tagged-list.rkt" (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt") (collects #"sicp" #"main.rkt"))
