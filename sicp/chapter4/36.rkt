@@ -31,7 +31,7 @@
 
 (define (all-pythogorean-triples)
   (let ([high (an-integer-starting-from 1)])
-    (let ([low (an-integer-between 1 i)])
+    (let ([low (an-integer-between 1 high)])
       (let ([middle (an-integer-between low high)])
         (require (= (sum-of-squares low middle)
                     (square high)))
