@@ -46,6 +46,10 @@
                   lookup-variable-value
                   set-variable-value!
                   define-variable!))
+(require (only-in "./expressions/if-fail.rkt"
+                  if-fail?
+                  if-fail-consequent
+                  if-fail-alternative))
 
 (provide ambeval the-global-environment)
 
@@ -67,8 +71,11 @@
         [(begin? exp) (analyze-sequence (begin-actions exp))]
         [(cond? exp) (analyze (cond->if exp))]
         [(let? exp) (analyze (let->combination exp))]
+        [(let*? exp) (analyze (let*->nested-lets exp))]
         [(amb? exp) (analyze-amb exp)]
         [(ramb? exp) (analyze-ramb exp)]
+        [(require? exp) (analyze-require exp)]
+        [(if-fail? exp) (analyze-if-fail exp)]
         [(application? exp) (analyze-application exp)]
         [else (error "Unknown expression type: ANALYZE" exp)]))
 
@@ -177,6 +184,16 @@
                (try-next (cdr choices))))))
       (try-next cprocs))))
 
+(define (analyze-require exp)
+  (let ((pproc (analyze (require-predicate exp))))
+    (lambda (env succeed fail)
+      (pproc env
+             (lambda (pred-value fail2)
+               (if (not pred-value)
+                   (fail2)
+                   (succeed 'ok fail2)))
+             fail))))
+
 ; analyze-ramb utils
 (define (length L)
   (if (null? L)
@@ -220,6 +237,17 @@
                (lambda ()
                  (try-next (without current-choice choices)))))))
       (try-next cprocs))))
+
+(define (analyze-if-fail exp)
+  (let ([consequent (analyze (if-fail-consequent exp))]
+        [alternative (analyze (if-fail-alternative exp))])
+    (lambda (env succeed fail)
+      (consequent env
+                  succeed
+                  (lambda ()
+                    (alternative env
+                                 succeed
+                                 fail))))))
 
 ; analyze-application util
 (define (get-args aprocs env succeed fail)
@@ -276,10 +304,6 @@
 (define (true? x) (not (eq? x false)))
 (define (false? x) (eq? x false))
 
-; LET*
-(define (eval-let* exp env)
-  (eval (let*->nested-lets exp) env))
-
 ; AMB
 (define (amb? exp) (tagged-list? exp 'amb))
 (define (amb-choices exp) (cdr exp))
@@ -287,6 +311,12 @@
 ; RAMB
 (define (ramb? exp) (tagged-list? exp 'ramb))
 (define (ramb-choices exp) (cdr exp))
+
+; REQUIRE
+(define (require? exp)
+  (tagged-list? exp 'require))
+(define (require-predicate exp)
+  (cadr exp))
 
 ; PERMANENT-ASSIGNMENT
 (define (permanent-assignment? exp)
@@ -327,6 +357,7 @@
         (list 'list list)
         (list 'not not)
         (list 'eq? eq?)
+        (list 'even? even?)
         (list '+ +)
         (list '- -)
         (list '* *)
