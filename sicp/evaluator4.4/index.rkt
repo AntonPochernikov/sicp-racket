@@ -30,8 +30,8 @@
                (instantiate
                  q
                  frame
-                 (lambda (v f)
-                   (contract-question-mark v))))
+                 (lambda (variable _)
+                   (contract-question-mark variable))))
              (qeval q (singleton-stream '()))))
            (query-driver-loop)])))
 
@@ -123,18 +123,20 @@
 
 (define (predicate exps) (car exps))
 (define (args exps) (cdr exps))
+
 (define (execute exp)
   (apply (eval (predicate exp) user-initial-environment)
          (args exp)))
 
-; ignored => _ as a filler
-(define (always-true ignored frame-stream) frame-stream)
+
+(define (always-true _ frame-stream) frame-stream)
 (put 'always-true 'qeval always-true)
 
 ; ASSERTIONS
 (define (find-assertions pattern frame)
   (stream-flatmap
-   (lambda (datum) (check-an-assertion datum pattern frame))
+   (lambda (datum)
+     (check-an-assertion datum pattern frame))
    (fetch-assertions pattern frame)))
 
 (define (check-an-assertion assertion
@@ -310,6 +312,7 @@
   (let ([pattern (conclusion rule)])
     (if (indexable? pattern)
         (let ([key (index-key-of pattern)])
+          (display key)
           (let ([current-rule-stream
                  (get-stream key 'rule-stream)])
             (put key
@@ -331,6 +334,14 @@
 ; STREAM OPERATIONS
 (define (stream-car s) (car s))
 (define (stream-cdr s) (force (cdr s)))
+
+(define (stream-append s1 s2)
+  (if (stream-null? s1)
+      s2
+      (cons-stream
+       (stream-car s1)
+       (stream-append (stream-cdr s1) s2))))
+
 (define (stream-map proc s)
   (if (stream-null? s)
       the-empty-stream
@@ -468,6 +479,7 @@
 (add-assertion! '(son Ada Jubal))
 
 (query-driver-loop)
+
 
 
 
