@@ -76,6 +76,7 @@
       (conjoin (rest-conjuncts conjuncts)
                (qeval (first-conjunct conjuncts)
                       frame-stream))))
+
 (put 'and 'qeval conjoin)
 
 ; disjoin
@@ -90,6 +91,7 @@
        (qeval (first-disjunct disjuncts) frame-stream)
        (delay (disjoin (rest-disjuncts disjuncts)
                        frame-stream)))))
+
 (put 'or 'qeval disjoin)
 
 ; negate
@@ -104,6 +106,7 @@
          (singleton-stream frame)
          the-empty-stream))
    frame-stream))
+
 (put 'not 'qeval negate)
 
 ; lisp-value
@@ -119,6 +122,7 @@
          (singleton-stream frame)
          the-empty-stream))
    frame-stream))
+
 (put 'lisp-value 'qeval lisp-value)
 
 (define (predicate exps) (car exps))
@@ -128,9 +132,25 @@
   (apply (eval (predicate exp) user-initial-environment)
          (args exp)))
 
-
+; always-true
 (define (always-true _ frame-stream) frame-stream)
 (put 'always-true 'qeval always-true)
+
+; unique
+(define (unique-query exp) (car exp))
+
+(define (uniquely-asserted contents frame-stream)
+  (stream-flatmap
+   (lambda (frame)
+     (let ([result-stream
+            (qeval (unique-query contents)
+                   (singleton-stream frame))])
+       (if (singleton-stream? result-stream)
+           result-stream
+           the-empty-stream)))
+   frame-stream))
+
+(put 'unique 'qeval uniquely-asserted)
 
 ; ASSERTIONS
 (define (find-assertions pattern frame)
@@ -320,9 +340,9 @@
                  (cons-stream rule
                               current-rule-stream)))))))
 
-(define (indexable? pat)
-  (or (constant-symbol? (car pat))
-      (variable? (car pat))))
+(define (indexable? pattern)
+  (or (constant-symbol? (car pattern))
+      (variable? (car pattern))))
 
 (define (index-key-of pattern)
   (let ([key (car pattern)])
@@ -346,7 +366,7 @@
   (if (stream-null? s)
       the-empty-stream
       (cons-stream
-       (proc (car s))
+       (proc (stream-car s))
        (stream-map proc (stream-cdr s)))))
 
 (define (display-stream s)
@@ -387,6 +407,10 @@
 
 (define (singleton-stream x)
   (cons-stream x the-empty-stream))
+
+(define (singleton-stream? s)
+  (and (not (stream-null? s))
+       (stream-null? (stream-cdr s))))
 
 ; FRAMES AND BINDINGS
 (define (make-binding variable value)
@@ -468,17 +492,61 @@
                        (number->string (cadr variable)))
         (symbol->string (cadr variable))))))
 
-(add-assertion! '(son Adam Cain))
-(add-assertion! '(son Cain Enoch))
-(add-assertion! '(son Enoch Irad))
-(add-assertion! '(son Irad Mehujael))
-(add-assertion! '(son Mehujael Methushael))
-(add-assertion! '(son Methushael Lamech))
-(add-assertion! '(wife Lamech Ada))
-(add-assertion! '(son Ada Jabal))
-(add-assertion! '(son Ada Jubal))
+(add-assertion! '(address (Bitdiddle Ben) (Slumerville (Ridge Road) 10)))
+(add-assertion! '(job (Bitdiddle Ben) (computer wizard)))
+(add-assertion! '(salary (Bitdiddle Ben) 60000))
+
+(add-assertion! '(address (Hacker Alyssa P) (Cambridge (Mass Ave) 78)))
+(add-assertion! '(job (Hacker Alyssa P) (computer programmer)))
+(add-assertion! '(salary (Hacker Alyssa P) 40000))
+(add-assertion! '(supervisor (Hacker Alyssa P) (Bitdiddle Ben)))
+
+(add-assertion! '(address (Fect Cy D) (Cambridge (Ames Street) 3)))
+(add-assertion! '(job (Fect Cy D) (computer programmer)))
+(add-assertion! '(salary (Fect Cy D) 35000))
+(add-assertion! '(supervisor (Fect Cy D) (Bitdiddle Ben)))
+
+(add-assertion! '(address (Tweakit Lem E) (Boston (Bay State Road) 22)))
+(add-assertion! '(job (Tweakit Lem E) (computer technician)))
+(add-assertion! '(salary (Tweakit Lem E) 25000))
+(add-assertion! '(supervisor (Tweakit Lem E) (Bitdiddle Ben)))
+
+(add-assertion! '(address (Reasoner Louis) (Slumerville (Pine Tree Road) 80)))
+(add-assertion! '(job (Reasoner Louis) (computer programmer trainee)))
+(add-assertion! '(salary (Reasoner Louis) 30000))
+(add-assertion! '(supervisor (Reasoner Louis) (Hacker Alyssa P)))
+
+(add-assertion! '(supervisor (Bitdiddle Ben) (Warbucks Oliver)))
+(add-assertion! '(address (Warbucks Oliver) (Swellesley (Top Heap Road))))
+(add-assertion! '(job (Warbucks Oliver) (administration big wheel)))
+(add-assertion! '(salary (Warbucks Oliver) 150000))
+
+(add-assertion! '(address (Scrooge Eben) (Weston (Shady Lane) 10)))
+(add-assertion! '(job (Scrooge Eben) (accounting chief accountant)))
+(add-assertion! '(salary (Scrooge Eben) 75000))
+(add-assertion! '(supervisor (Scrooge Eben) (Warbucks Oliver)))
+
+(add-assertion! '(address (Cratchet Robert) (Allston (N Harvard Street) 16)))
+(add-assertion! '(job (Cratchet Robert) (accounting scrivener)))
+(add-assertion! '(salary (Cratchet Robert) 18000))
+(add-assertion! '(supervisor (Cratchet Robert) (Scrooge Eben)))
+
+(add-assertion! '(address (Aull DeWitt) (Slumerville (Onion Square) 5)))
+(add-assertion! '(job (Aull DeWitt) (administration secretary)))
+(add-assertion! '(salary (Aull DeWitt) 25000))
+(add-assertion! '(supervisor (Aull DeWitt) (Warbucks Oliver)))
+
+(add-assertion! '(can-do-job (computer wizard) (computer programmer)))
+(add-assertion! '(can-do-job (computer wizard) (computer technician)))
+(add-assertion!
+ '(can-do-job (computer programmer)
+              (computer programmer trainee)))
+(add-assertion!
+ '(can-do-job (administration secretary)
+              (administration big wheel)))
 
 (query-driver-loop)
+
 
 
 
