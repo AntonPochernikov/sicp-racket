@@ -37,8 +37,8 @@
    (got expt-loop)
  expt-done)
 
-; I will omit the part with drawing,
-; assuming that I had drawn only recursive diagram.
+; I omit the part with drawing,
+; assuming that I drew only recursive diagram.
 
 
 
