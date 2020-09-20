@@ -15,3 +15,5 @@
       (apply operation
              (map (lambda (p) (p))
                   aprocs)))))
+
+
